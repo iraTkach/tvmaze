@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Edit Movie</title>
     <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
@@ -116,14 +117,20 @@
             if(movie!=='null'){
                 const resp = await fetch(`${url}/${movie}`);
 
+                function _setValue(key, value) {
+                    document.getElementById(key).value = value;
+                }
+            
+
                 if (resp.ok) {
                     const movies = await resp.json();
-                    document.getElementById('name').value = movies.name;
-                    document.getElementById('rating').value = movies.rating.average;
-                    document.getElementById('type').value = movies.type;
-                    document.getElementById('runtime').value = movies.runtime;
-                    document.getElementById('language').value = movies.language;
-                    document.getElementById('genres').value = movies.genres;        
+                    const {name, rating, type, runtime, language, genres} = movies;
+                    _setValue('name', name);
+                    _setValue('rating', rating.average);
+                    _setValue('type', type);
+                    _setValue('runtime', runtime);
+                    _setValue('language', language);
+                    _setValue('genres', genres);        
                 }
             }
         }
