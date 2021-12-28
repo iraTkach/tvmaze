@@ -70,6 +70,12 @@
         background-color: aquamarine;
       }
     </style>
+
+    <script>
+      function home() {
+        window.location.replace("/tvmaze.html");
+      }
+    </script>
   </head>
   <body onload="getMovies()">
     <h1>Edit Movie</h1>
@@ -135,7 +141,7 @@
             />
           </div>
         </div>
-        <button class="btn btn-default" onclick="back()">Back</button>
+        <button class="btn btn-default" id="back" onclick="home()">Back</button>
         <button class="btn btn-warning" id="edit" onclick="updateData()">
           Update
         </button>
@@ -181,6 +187,8 @@
             _setValue("language", language);
             _setValue("genres", genres);
           }
+        } else {
+          document.querySelector("#back").style = "display:none";
         }
       }
 
@@ -211,7 +219,7 @@
         } catch (error) {
           console.log(error);
         }
-        back();
+        home();
       }
 
       async function updateData() {
@@ -243,11 +251,7 @@
         } catch (error) {
           console.log(error);
         }
-        back();
-      }
-
-      function back() {
-        window.location.replace("/tvmaze.html");
+        home();
       }
     </script>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
