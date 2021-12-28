@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+<style>
+    body {
+        padding: 20px;
+    }
+
+    img {
+        border-radius: 5px;
+        transition: all 1s easy;
+    }
+
+    img:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px #333;
+    }
+
+    table {
+        margin-top: 50px;
+    }
+
+    a, td div {
+        display: inline-block;
+        color: blue !important;
+        transition: all 1s easy;
+        cursor: pointer;
+    }
+ 
+    a:hover, td div:hover {
+        transform: scale(1.03);
+        text-decoration: underline;
+    }
+
+    button {
+        margin: 20px auto;
+    }
+    form > div {
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+    }
+</style>
+    
+    <style>
+    .page {
+        background-color: rgb(189, 223, 223);
+    }
+    span {
+        
+        width: 100px;
+        height: 30px;
+        background-color: aquamarine;
+    }
+</style></head>
+<body>
+
+    <h1>Edit Movie</h1>
+    <div id="moviesDiv">
+        <form>
+            <div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" placeholder="Name">
+          </div>
+
+          <div class="form-group">
+            <label for="rating">Rating</label>
+            <input type="number" class="form-control" id="rating" placeholder="Rating">
+          </div>
+          <div class="form-group">
+            <label for="type">Type</label>
+            <input type="text" class="form-control" id="type" placeholder="Type">
+          </div>
+          </div>
+          <div>
+          <div class="form-group">
+            <label for="runtime">Runtime</label>
+            <input type="number" class="form-control" id="runtime" placeholder="Runtime">
+          </div>
+          <div class="form-group">
+            <label for="language">Language</label>
+            <input type="text" class="form-control" id="language" placeholder="Language">
+          </div>
+          <div class="form-group">
+            <label for="genres">Genres</label>
+            <input type="text" disabled class="form-control" id="genres" placeholder="Genres">
+          </div>
+        </div>
+        <button class="btn btn-default" onclick="back()">Back</button>
+        <button class="btn btn-warning" id="edit" onclick="updateData()">Update</button>
+        <button class="btn btn-success" id="add" onclick="addData()" style="display:none">Add</button>
+    </form>
+    </div>
+    <script>
+        const url = "https://api.tvmaze.com/shows";
+        const movie = sessionStorage.getItem("movie");
+
+        if(movie === 'null'){
+            document.querySelector('h1').innerText = "Add movie"
+            document.getElementById('edit').style ="display:none" ;
+            document.getElementById('add').style = "display:inline";
+            document.getElementById('genres').disabled = false;
+        } 
+        else{
+            document.getElementById('add').style ="display:none" ;
+            document.getElementById('edit').style = "display:inline";
+        }
+
+        async function getMovies() {
+            if(movie!=='null'){
+                const resp = await fetch(`${url}/${movie}`);
+
+                if (resp.ok) {
+                    const movies = await resp.json();
+                    document.getElementById('name').value = movies.name;
+                    document.getElementById('rating').value = movies.rating.average;
+                    document.getElementById('type').value = movies.type;
+                    document.getElementById('runtime').value = movies.runtime;
+                    document.getElementById('language').value = movies.language;
+                    document.getElementById('genres').value = movies.genres;        
+                }
+            }
+        }
+        
+        async function addData() {
+            try{
+                const movieInfo ={
+                name: document.getElementById('name').value,
+                rating  : {average: document.getElementById('rating').value},
+                type : document.getElementById('type').value,
+                runtime : document.getElementById('runtime').value,
+                language : document.getElementById('language').value,
+                genres : document.getElementById('genres').value
+                }
+                // fetch request as default is GET.
+                const response = await fetch(url, {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(movieInfo),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                   // window.location.href='tvmaze.html';
+
+                } else {
+                    console.log("Error");
+                }
+            }catch(error){
+                console.log(error)
+            }
+           back();
+
+        }
+
+        async function updateData(){
+            try{
+                const resp = await fetch(`${url}/${movie}`)
+
+                if (resp.ok) {
+                    movieInfo = await resp.json();
+
+                    movieInfo.name = document.getElementById('name').value;
+                    movieInfo.rating.average = document.getElementById('rating').value;
+                    movieInfo.type = document.getElementById('type').value;
+                    movieInfo.runtime = document.getElementById('runtime').value;
+                    movieInfo.language = document.getElementById('language').value;
+
+                    const resp1 = await fetch(`${url}/${movie}`, {
+                        method: 'put',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(movieInfo)
+                    })
+
+                    if (resp1.ok) {
+                        console.log(await resp1.json())
+                        //window.location.href='tvmaze.html';
+
+                    } else {
+                        console.log("Error");
+                    }           
+                }
+            }catch(error){
+                console.log(error)
+            }
+            back();
+        }
+
+        function back() {
+            window.location.replace('/tvmaze.html');
+        }
+    </script>
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+</body>

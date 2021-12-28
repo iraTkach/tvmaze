@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Movies</title>
+    
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+<style>
+    body {
+        padding: 20px;
+    }
+
+    img {
+        border-radius: 5px;
+        transition: all 1s easy;
+    }
+
+    img:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px #333;
+    }
+
+    table {
+        margin-top: 50px;
+    }
+
+    a, td div {
+        display: inline-block;
+        transition: all 1s easy;
+        cursor: pointer;
+    }
+ 
+    a:hover, td div:hover {
+        transform: scale(1.03);
+        text-decoration: underline;
+    }
+
+    button {
+        margin: 20px auto;
+    }
+</style>
+</head>
+<body onload="getMovies()">
+
+    <h1>First {count} Movies</h1>
+    <button class="btn btn-default" onclick="prepareToEdit(null)">
+        <span class="glyphicon glyphicon-film" aria-hidden="true"></span>
+        New movie
+    </button>
+    <table id="tab" class="table table-striped"><thead><tr><th>Name</th><th>Image</th><th>Edit</th><th>Delete</th></tr></thead><tbody></tbody></table>
+    
+    <script>
+        const url = "https://api.tvmaze.com/shows";
+        const numOfMovies = 10;
+
+        const h1 = document.querySelector('h1');
+        const text = h1.innerText;
+        h1.innerText = text.replace(/\{count}/, numOfMovies);    
+
+        function prepareToEdit(movie) {
+            sessionStorage.setItem('movie', movie);
+            window.location.href='edit.html';
+        }
+        async function getMovies() {
+            
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.json();
+                const table = document.querySelector('#tab').querySelector('tbody');
+                let i=0;
+                for (let index = 0; index < numOfMovies; index++) {
+                    const movie = data[index];                   
+                
+                    const elTr = document.createElement("tr");
+
+                    elTr.innerHTML = `
+                        <td>${movie.name}</td>
+                        <td><img src="${movie.image.medium}"</img></td>
+                        <td><div onclick="prepareToEdit(${movie.id})">Edit</div></td>
+                        <td><div class="danger" onclick="deleteMovie(${movie.id})">Delete</div></td>
+                    `;
+                    table.append(elTr);
+                };
+
+                
+            }
+        }
+        
+        async function deleteMovie(id) {
+            try{
+                const response = await fetch(`${url}/${id}`, {
+                    method: "delete"
+                })
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+                    alert("You deleted the movie")
+                } else {
+                    console.log("Error");
+                }
+            }catch(error){
+                console.log(error)
+                alert("Unable to deleted the movie")
+            }
+}
+    </script>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+</body>
+
+</html>
